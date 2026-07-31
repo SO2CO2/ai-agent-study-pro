@@ -1,0 +1,40 @@
+# macOS / editor noise
+.DS_Store
+._*
+*.swp
+*.swo
+*~
+
+# Python cache and build output
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local environments and secrets
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Runtime logs and temporary output
+*.log
+agent_traces.jsonl
+tmp/
+temp/
+
+# Local-only assets / notes
+图片/
+提示词.txt
+
+# Optional generated local memory/index files
+memory_with_embeddings.json

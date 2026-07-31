@@ -1,0 +1,38 @@
+[
+  {
+    "id": "rag_two_stages",
+    "question": "RAG 的索引阶段和查询阶段分别做什么？",
+    "expected_sources": ["rag_notes.md"],
+    "expected_keywords": ["index stage", "query time", "chunks", "embedding", "Top K"]
+  },
+  {
+    "id": "rag_chunk_overlap",
+    "question": "为什么 RAG 文档切分时需要 chunk overlap？",
+    "expected_sources": ["rag_notes.md"],
+    "expected_keywords": ["Chunk overlap", "neighboring chunks", "context", "chunk boundary"]
+  },
+  {
+    "id": "agent_stop_conditions",
+    "question": "多步骤 Agent 为什么需要最大步骤限制和停止条件？",
+    "expected_sources": ["agent_core.md"],
+    "expected_keywords": ["multi-step Agent", "Plan, Act, Observe", "maximum step count", "stop conditions", "infinite loops"]
+  },
+  {
+    "id": "tool_calling_execution",
+    "question": "Tool Calling 中模型和程序分别负责什么？",
+    "expected_sources": ["agent_core.md"],
+    "expected_keywords": ["model proposes", "tool name", "arguments", "Program code", "execute"]
+  },
+  {
+    "id": "embedding_role",
+    "question": "Embedding 在语义检索中负责什么？",
+    "expected_sources": ["memory_and_embeddings.md"],
+    "expected_keywords": ["Embedding converts", "vector", "cosine similarity", "Top K", "does not answer"]
+  },
+  {
+    "id": "memory_types",
+    "question": "State、conversation history 和 long-term memory 有什么区别？",
+    "expected_sources": ["memory_and_embeddings.md"],
+    "expected_keywords": ["State records", "Conversation history", "Long-term memory", "future conversations"]
+  }
+]

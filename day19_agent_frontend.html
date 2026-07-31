@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Day 19 Agent Frontend</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --surface-soft: #f0f4f7;
+      --text: #1c2430;
+      --muted: #637083;
+      --line: #d9e0e7;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --warn: #b45309;
+      --danger: #b42318;
+      --ok: #15803d;
+      --shadow: 0 12px 30px rgba(28, 36, 48, 0.08);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #ffffff;
+      cursor: pointer;
+      min-height: 38px;
+      padding: 0 12px;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background: var(--accent-strong);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      background: #9aa6b2;
+      cursor: wait;
+      transform: none;
+    }
+
+    .button-secondary {
+      background: #ffffff;
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .button-secondary:hover {
+      background: var(--surface-soft);
+    }
+
+    .button-danger {
+      background: #ffffff;
+      border-color: #f2b8b5;
+      color: var(--danger);
+    }
+
+    .button-danger:hover {
+      background: #fff1f0;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #9aa6b2;
+      box-shadow: 0 0 0 3px rgba(154, 166, 178, 0.14);
+    }
+
+    .status-dot.online {
+      background: var(--ok);
+      box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.14);
+    }
+
+    .status-dot.offline {
+      background: var(--danger);
+      box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.14);
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 22px auto 34px;
+      display: grid;
+      grid-template-columns: minmax(300px, 380px) 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    section,
+    aside {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      min-height: 52px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text);
+      background: #ffffff;
+      padding: 10px 11px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 108px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .message {
+      min-height: 40px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .message.error {
+      color: var(--danger);
+      background: #fff1f0;
+    }
+
+    .message.success {
+      color: var(--ok);
+      background: #eef8f1;
+    }
+
+    .workspace {
+      display: grid;
+      gap: 18px;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      background: #ffffff;
+    }
+
+    .task-item.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+    }
+
+    .task-main {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .task-title {
+      font-weight: 700;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .task-id {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .badge.pending,
+    .badge.running,
+    .badge.paused {
+      color: var(--warn);
+      background: #fff7ed;
+    }
+
+    .badge.completed {
+      color: var(--ok);
+      background: #eef8f1;
+    }
+
+    .badge.failed,
+    .badge.cancelled {
+      color: var(--danger);
+      background: #fff1f0;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .meta {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 10px;
+      background: #ffffff;
+      min-width: 0;
+    }
+
+    .meta-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .step-title {
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .step-result {
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .trace-list {
+      display: grid;
+      gap: 8px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .trace-item {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px;
+      background: #ffffff;
+    }
+
+    .trace-type {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .trace-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      text-align: center;
+      background: #ffffff;
+    }
+
+    @media (max-width: 860px) {
+      .topbar {
+        min-height: 86px;
+        align-items: flex-start;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .meta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .task-main {
+        display: grid;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+      }
+
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="topbar">
+        <div>
+          <h1>Day 19 Agent Frontend</h1>
+          <div class="subtitle">任务队列 Agent 的最小操作界面</div>
+        </div>
+        <div class="status-strip" aria-live="polite">
+          <span id="statusDot" class="status-dot"></span>
+          <span id="apiStatus">API 状态待检查</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <aside class="stack">
+        <section>
+          <div class="panel-header">
+            <h2 class="panel-title">连接</h2>
+            <button id="checkApiButton" class="button-secondary" type="button">检查 API</button>
+          </div>
+          <div class="panel-body stack">
+            <div class="field">
+              <label for="apiBaseInput">API 地址</label>
+              <input id="apiBaseInput" value="http://127.0.0.1:8000" autocomplete="off">
+            </div>
+            <div id="messageBox" class="message">先启动：python3 day18_agent_api_service.py</div>
+          </div>
+        </section>
+
+        <section>
+          <div class="panel-header">
+            <h2 class="panel-title">创建任务</h2>
+          </div>
+          <div class="panel-body stack">
+            <div class="field">
+              <label for="goalInput">任务目标</label>
+              <textarea id="goalInput">整理第 9-10 天 RAG 学习笔记</textarea>
+            </div>
+            <button id="createTaskButton" type="button">创建任务</button>
+          </div>
+        </section>
+
+        <section>
+          <div class="panel-header">
+            <h2 class="panel-title">Trace</h2>
+            <button id="refreshTracesButton" class="button-secondary" type="button">刷新</button>
+          </div>
+          <div class="panel-body">
+            <div id="traceList" class="trace-list">
+              <div class="empty">暂无 Trace。</div>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <div class="workspace">
+        <section>
+          <div class="panel-header">
+            <h2 class="panel-title">任务列表</h2>
+            <button id="refreshTasksButton" class="button-secondary" type="button">刷新</button>
+          </div>
+          <div class="panel-body">
+            <div id="taskList" class="task-list">
+              <div class="empty">暂无任务。</div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="panel-header">
+            <h2 class="panel-title">任务详情</h2>
+            <span id="selectedTaskLabel" class="badge">未选择</span>
+          </div>
+          <div id="taskDetail" class="panel-body">
+            <div class="empty">选择一个任务查看步骤和结果。</div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      apiBase: "http://127.0.0.1:8000",
+      tasks: [],
+      selectedTaskId: null,
+      loading: false
+    };
+
+    const elements = {
+      apiBaseInput: document.querySelector("#apiBaseInput"),
+      apiStatus: document.querySelector("#apiStatus"),
+      statusDot: document.querySelector("#statusDot"),
+      messageBox: document.querySelector("#messageBox"),
+      goalInput: document.querySelector("#goalInput"),
+      createTaskButton: document.querySelector("#createTaskButton"),
+      refreshTasksButton: document.querySelector("#refreshTasksButton"),
+      checkApiButton: document.querySelector("#checkApiButton"),
+      refreshTracesButton: document.querySelector("#refreshTracesButton"),
+      taskList: document.querySelector("#taskList"),
+      taskDetail: document.querySelector("#taskDetail"),
+      selectedTaskLabel: document.querySelector("#selectedTaskLabel"),
+      traceList: document.querySelector("#traceList")
+    };
+
+    function getApiBase() {
+      return elements.apiBaseInput.value.trim().replace(/\/+$/, "");
+    }
+
+    function setLoading(isLoading) {
+      state.loading = isLoading;
+      document.querySelectorAll("button").forEach((button) => {
+        button.disabled = isLoading;
+      });
+    }
+
+    function setMessage(text, type = "") {
+      elements.messageBox.textContent = text;
+      elements.messageBox.className = `message ${type}`.trim();
+    }
+
+    function setApiStatus(online, text) {
+      elements.apiStatus.textContent = text;
+      elements.statusDot.classList.toggle("online", online);
+      elements.statusDot.classList.toggle("offline", !online);
+    }
+
+    async function request(path, options = {}) {
+      const response = await fetch(`${getApiBase()}${path}`, options);
+      const data = await response.json();
+      if (!response.ok || data.ok === false) {
+        const message = data.error?.message || `请求失败：${response.status}`;
+        throw new Error(message);
+      }
+      return data;
+    }
+
+    async function postJson(path, payload = {}) {
+      return request(path, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=UTF-8"
+        },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function badge(status) {
+      return `<span class="badge ${escapeHtml(status)}">${escapeHtml(status)}</span>`;
+    }
+
+    function renderTasks() {
+      if (!state.tasks.length) {
+        elements.taskList.innerHTML = '<div class="empty">暂无任务。创建一个任务后会显示在这里。</div>';
+        return;
+      }
+
+      elements.taskList.innerHTML = state.tasks.map((task) => {
+        const selected = task.id === state.selectedTaskId ? " selected" : "";
+        return `
+          <article class="task-item${selected}">
+            <div class="task-main">
+              <div>
+                <div class="task-title">${escapeHtml(task.title)}</div>
+                <div class="task-id">${escapeHtml(task.id)} · updated_at=${escapeHtml(task.updated_at)}</div>
+              </div>
+              ${badge(task.status)}
+            </div>
+            <div class="row">
+              <span class="badge">进度 ${escapeHtml(task.progress)}</span>
+              <span class="badge">失败步骤 ${escapeHtml(task.failed_steps)}</span>
+            </div>
+            <div class="task-actions">
+              <button class="button-secondary" type="button" data-action="show" data-task-id="${escapeHtml(task.id)}">查看</button>
+              <button type="button" data-action="run" data-task-id="${escapeHtml(task.id)}">推进一步</button>
+              <button class="button-secondary" type="button" data-action="resume" data-task-id="${escapeHtml(task.id)}">恢复</button>
+              <button class="button-danger" type="button" data-action="cancel" data-task-id="${escapeHtml(task.id)}">取消</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderTaskDetail(task) {
+      if (!task) {
+        elements.selectedTaskLabel.textContent = "未选择";
+        elements.taskDetail.innerHTML = '<div class="empty">选择一个任务查看步骤和结果。</div>';
+        return;
+      }
+
+      elements.selectedTaskLabel.textContent = task.id;
+      const summary = task.summary || {};
+      const steps = task.steps || [];
+      elements.taskDetail.innerHTML = `
+        <div class="stack">
+          <div class="meta-grid">
+            <div class="meta">
+              <div class="meta-label">任务 ID</div>
+              <div class="meta-value">${escapeHtml(task.id)}</div>
+            </div>
+            <div class="meta">
+              <div class="meta-label">状态</div>
+              <div class="meta-value">${escapeHtml(task.status)}</div>
+            </div>
+            <div class="meta">
+              <div class="meta-label">进度</div>
+              <div class="meta-value">${escapeHtml(summary.progress)}</div>
+            </div>
+            <div class="meta">
+              <div class="meta-label">更新时间</div>
+              <div class="meta-value">${escapeHtml(task.updated_at)}</div>
+            </div>
+          </div>
+          <div class="message">${escapeHtml(task.goal)}</div>
+          <div class="steps">
+            ${steps.map((step) => `
+              <div class="step">
+                <div>${badge(step.status)}</div>
+                <div>
+                  <div class="step-title">${escapeHtml(step.id)} · ${escapeHtml(step.description)}</div>
+                  ${step.result ? `<div class="step-result">${escapeHtml(step.result)}</div>` : ""}
+                  ${step.error ? `<div class="step-result">错误：${escapeHtml(step.error)}</div>` : ""}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          ${task.final_result ? `<div class="message success">${escapeHtml(task.final_result)}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function renderTraces(traces) {
+      if (!traces.length) {
+        elements.traceList.innerHTML = '<div class="empty">暂无 Trace。</div>';
+        return;
+      }
+
+      elements.traceList.innerHTML = traces.slice().reverse().map((event) => `
+        <div class="trace-item">
+          <div class="trace-type">${escapeHtml(event.event_type)} · step ${escapeHtml(event.step)}</div>
+          <div class="trace-meta">${escapeHtml(event.timestamp)} · ${escapeHtml(event.message)}</div>
+          <div class="trace-meta">${escapeHtml(event.trace_id)}</div>
+        </div>
+      `).join("");
+    }
+
+    async function checkApi() {
+      try {
+        const data = await request("/health");
+        setApiStatus(true, `${data.service} 在线`);
+        setMessage("API 已连接，可以创建和推进任务。", "success");
+      } catch (error) {
+        setApiStatus(false, "API 离线");
+        setMessage(`连接失败：${error.message}`, "error");
+      }
+    }
+
+    async function refreshTasks() {
+      const data = await request("/tasks");
+      state.tasks = data.tasks || [];
+      renderTasks();
+    }
+
+    async function refreshSelectedTask() {
+      if (!state.selectedTaskId) {
+        renderTaskDetail(null);
+        return;
+      }
+      const data = await request(`/tasks/${state.selectedTaskId}`);
+      renderTaskDetail(data.task);
+    }
+
+    async function refreshTraces() {
+      const data = await request("/traces");
+      renderTraces(data.traces || []);
+    }
+
+    async function createTask() {
+      const goal = elements.goalInput.value.trim();
+      if (!goal) {
+        setMessage("任务目标不能为空。", "error");
+        return;
+      }
+      const data = await postJson("/tasks", { goal });
+      state.selectedTaskId = data.task.id;
+      setMessage(`已创建任务：${data.task.id}`, "success");
+      await refreshTasks();
+      renderTaskDetail(data.task);
+      await refreshTraces();
+    }
+
+    async function runTaskAction(taskId, action) {
+      if (action === "show") {
+        state.selectedTaskId = taskId;
+        await refreshSelectedTask();
+        renderTasks();
+        return;
+      }
+
+      const data = await postJson(`/tasks/${taskId}/${action}`);
+      state.selectedTaskId = taskId;
+      const actionText = {
+        run: "已推进一步",
+        resume: "已恢复并推进",
+        cancel: "已取消"
+      }[action] || "已执行";
+      setMessage(`${actionText}：${taskId}`, "success");
+      await refreshTasks();
+      renderTaskDetail(data.task);
+      await refreshTraces();
+    }
+
+    async function safeRun(operation) {
+      setLoading(true);
+      try {
+        await operation();
+      } catch (error) {
+        setMessage(error.message, "error");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    elements.checkApiButton.addEventListener("click", () => safeRun(checkApi));
+    elements.refreshTasksButton.addEventListener("click", () => safeRun(async () => {
+      await refreshTasks();
+      await refreshSelectedTask();
+      setMessage("任务列表已刷新。", "success");
+    }));
+    elements.refreshTracesButton.addEventListener("click", () => safeRun(async () => {
+      await refreshTraces();
+      setMessage("Trace 已刷新。", "success");
+    }));
+    elements.createTaskButton.addEventListener("click", () => safeRun(createTask));
+    elements.taskList.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) {
+        return;
+      }
+      safeRun(() => runTaskAction(button.dataset.taskId, button.dataset.action));
+    });
+
+    window.addEventListener("load", () => {
+      safeRun(async () => {
+        await checkApi();
+        await refreshTasks();
+        await refreshTraces();
+      });
+    });
+  </script>
+</body>
+</html>

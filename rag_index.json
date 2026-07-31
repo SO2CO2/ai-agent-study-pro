@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "created_at": null,
+  "embedding_model": null,
+  "chunk_size": 600,
+  "chunk_overlap": 100,
+  "chunks": []
+}

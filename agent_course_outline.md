@@ -38,6 +38,7 @@
 第 17 天：任务队列与长任务状态
 第 18 天：Agent API 服务封装
 第 19 天：Agent 前端操作界面
+第 20 天：多轮工作流 Agent
 ```
 
 前几天的基础模型可以总结为：
@@ -1556,6 +1557,102 @@ Trace 面板
 
 第 19 天让 Agent 具备了可操作界面。第 20 天可以继续学习多轮工作流设计，让用户在界面中和 Agent 持续协作，而不是只执行单个按钮动作。
 
+## 第 20 天：多轮工作流 Agent
+
+### 主题
+
+从“用户点击按钮触发动作”升级到“围绕一个任务持续多轮协作”，学习工作流状态、澄清问题、信息收集、阶段推进和用户反馈修改。
+
+### 学习目标
+
+- 理解多轮工作流和单次任务执行的区别。
+- 学会为 workflow session 设计状态结构。
+- 学会判断用户目标是否缺少必要信息。
+- 通过多轮对话收集 audience、output_format、focus 等字段。
+- 根据 collected_context 推进 clarifying、ready_to_plan、planning、drafting、reviewing、completed 等阶段。
+- 保存消息历史、当前阶段、计划、草稿和每次状态变化。
+- 理解哪些规则逻辑后续可以替换成 LLM。
+
+### 核心概念
+
+- Workflow
+- Workflow Session
+- Workflow State
+- Clarification
+- Slot Filling
+- Conversation History
+- Workflow Transition
+- Collected Context
+- Missing Fields
+- User Review
+
+### 核心流程
+
+```text
+用户提出目标
+-> 创建 workflow session
+-> 抽取已有信息
+-> 判断缺少哪些字段
+-> 如信息不足则追问
+-> 用户补充信息
+-> 更新 collected_context 和 messages
+-> 字段齐全后生成计划
+-> 执行并生成草稿
+-> 用户反馈修改或确认完成
+-> 保存最终结果
+```
+
+### 建议代码产出
+
+```text
+day20_workflow_agent.py
+workflow_sessions.json
+```
+
+建议核心函数：
+
+```python
+def load_sessions():
+    ...
+
+def save_sessions(sessions):
+    ...
+
+def create_session(user_input):
+    ...
+
+def extract_context_from_message(message):
+    ...
+
+def find_missing_fields(session):
+    ...
+
+def update_session_with_user_message(session, message):
+    ...
+
+def maybe_advance_workflow(session):
+    ...
+
+def create_plan(session):
+    ...
+
+def run_workflow(session):
+    ...
+
+def revise_workflow(session, instruction):
+    ...
+```
+
+### 关键认知
+
+```text
+多轮工作流 Agent 的核心，不是多说几轮话，而是在每一轮之后正确更新状态，并决定下一步该追问、规划、执行还是等待用户反馈。
+```
+
+### 明日衔接
+
+第 20 天补齐了第三周的协作流程能力。第 21 天可以做第三周综合项目，把多工具、人类确认、任务队列、API、前端和多轮工作流整合成一个小型 Agent 应用。
+
 ## 课程质量要求
 
 为了让课程保持精品感和新手友好：
@@ -1589,10 +1686,12 @@ day16_human_confirmation_agent.py
 day17_task_queue_agent.py
 day18_agent_api_service.py
 day19_agent_frontend.html
+day20_workflow_agent.py
 rag_index.json
 rag_eval_questions.json
 multi_tool_memory.json
 agent_tasks.json
+workflow_sessions.json
 knowledge_base/
 unsafe_knowledge_base/
 reliable_knowledge_base/

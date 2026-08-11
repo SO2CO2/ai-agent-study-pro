@@ -39,6 +39,7 @@
 第 18 天：Agent API 服务封装
 第 19 天：Agent 前端操作界面
 第 20 天：多轮工作流 Agent
+第 21 天：第三周综合项目：Agent 工作台
 ```
 
 前几天的基础模型可以总结为：
@@ -1653,6 +1654,102 @@ def revise_workflow(session, instruction):
 
 第 20 天补齐了第三周的协作流程能力。第 21 天可以做第三周综合项目，把多工具、人类确认、任务队列、API、前端和多轮工作流整合成一个小型 Agent 应用。
 
+## 第 21 天：第三周综合项目：Agent 工作台
+
+### 主题
+
+把第 15-20 天的能力整合成一个可操作、可追踪、可恢复、可协作的小型 Agent 应用，形成第三周闭环。
+
+### 学习目标
+
+- 理解第三周每个能力在完整 Agent 应用中的位置。
+- 区分 Workflow、Task Queue、Tool Registry、Pending Action、Trace 和 UI/API 边界。
+- 设计统一的 workbench_state.json 保存 sessions、tasks、pending_action 和 outputs。
+- 实现从用户目标到多轮澄清，再到任务创建和逐步执行的完整流程。
+- 对写入、删除、清空等副作用动作创建 pending action，并等待用户确认。
+- 使用 Trace 记录 workflow 创建、任务推进、工具调用、确认和输出保存。
+- 为第四周的测试、配置、权限、部署、成本和最终项目做准备。
+
+### 核心概念
+
+- Agent Workbench
+- Integrated Agent Application
+- Workflow Layer
+- Task Queue
+- Tool Registry
+- Human Confirmation
+- Pending Action
+- Unified State
+- Output Record
+- Product Boundary
+
+### 核心流程
+
+```text
+用户提出目标
+-> 创建 workflow session
+-> 收集缺失信息
+-> 生成工作流计划
+-> 从计划创建 task
+-> 用户逐步推进 task
+-> 工具调用前校验风险
+-> 高风险动作创建 pending action
+-> 用户确认后执行副作用工具
+-> 保存输出和 Trace
+-> 支持查看、恢复、取消和完成
+```
+
+### 建议代码产出
+
+```text
+day21_agent_workbench.py
+workbench_state.json
+```
+
+建议核心函数：
+
+```python
+def load_state():
+    ...
+
+def save_state(state):
+    ...
+
+def create_session(user_input, state):
+    ...
+
+def update_session_with_message(session, message):
+    ...
+
+def create_task_from_session(session, state):
+    ...
+
+def advance_task(task, state):
+    ...
+
+def register_tools():
+    ...
+
+def create_pending_action(tool_name, arguments, summary, state):
+    ...
+
+def handle_confirmation(user_input, state):
+    ...
+
+def handle_workbench_input(user_input, state):
+    ...
+```
+
+### 关键认知
+
+```text
+第三周综合项目的重点不是写更多功能，而是把 Workflow、Task Queue、Tool Registry、Human Confirmation、API/UI 思维和 Trace 串成一个能解释、能操作、能恢复的小系统。
+```
+
+### 明日衔接
+
+第 21 天完成第三周应用形态闭环。第 22 天可以进入第四周，开始学习 Agent 测试体系，让这个小型 Agent 应用不只是能跑，还能被稳定验证。
+
 ## 课程质量要求
 
 为了让课程保持精品感和新手友好：
@@ -1687,11 +1784,13 @@ day17_task_queue_agent.py
 day18_agent_api_service.py
 day19_agent_frontend.html
 day20_workflow_agent.py
+day21_agent_workbench.py
 rag_index.json
 rag_eval_questions.json
 multi_tool_memory.json
 agent_tasks.json
 workflow_sessions.json
+workbench_state.json
 knowledge_base/
 unsafe_knowledge_base/
 reliable_knowledge_base/

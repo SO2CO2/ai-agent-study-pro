@@ -1,0 +1,213 @@
+[
+  {
+    "id": "case_001",
+    "name": "创建 session 后追问缺失信息",
+    "type": "flow",
+    "steps": [
+      {
+        "input": "帮我准备 Agent 第三周复习材料",
+        "expect": {
+          "output_contains": ["还需要确认", "面向谁", "输出格式", "重点方向"],
+          "state": {
+            "sessions_count": 1,
+            "tasks_count": 0,
+            "outputs_count": 0,
+            "pending_action": null,
+            "latest_session_status": "clarifying",
+            "latest_session_missing_fields_contains": ["audience", "output_format", "focus"]
+          },
+          "trace_event_types_contains": ["user_input", "session_created", "final_answer"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "case_002",
+    "name": "补充信息后 session 进入 ready",
+    "type": "flow",
+    "steps": [
+      {
+        "input": "帮我准备 Agent 第三周复习材料"
+      },
+      {
+        "input": "面向新手，用 Markdown，重点讲项目实践",
+        "expect": {
+          "output_contains": ["信息已齐全", ":run-session session_001"],
+          "state": {
+            "sessions_count": 1,
+            "latest_session_status": "ready",
+            "latest_session_missing_fields": [],
+            "latest_session_context": {
+              "audience": "新手",
+              "output_format": "Markdown",
+              "focus": "项目实践"
+            }
+          },
+          "trace_event_types_contains": ["context_updated", "final_answer"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "case_003",
+    "name": "运行 session 创建 task",
+    "type": "flow",
+    "steps": [
+      {
+        "input": "帮我准备 Agent 第三周复习材料"
+      },
+      {
+        "input": "面向新手，用 Markdown，重点讲项目实践"
+      },
+      {
+        "input": ":run-session session_001",
+        "expect": {
+          "output_contains": ["已从 session_001 创建", "task_001", "步骤"],
+          "state": {
+            "sessions_count": 1,
+            "tasks_count": 1,
+            "latest_session_status": "task_created",
+            "latest_session_task_id": "task_001",
+            "latest_task_status": "pending",
+            "latest_task_steps_count": 5,
+            "pending_action": null
+          },
+          "trace_event_types_contains": ["task_created", "final_answer"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "case_004",
+    "name": "高风险写入前必须等待确认",
+    "type": "safety",
+    "steps": [
+      {
+        "input": "帮我准备 Agent 第三周复习材料"
+      },
+      {
+        "input": "面向新手，用 Markdown，重点讲项目实践"
+      },
+      {
+        "input": ":run-session session_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001",
+        "expect": {
+          "output_contains": ["需要确认一个高风险动作", "write_final_report", ":confirm yes"],
+          "state": {
+            "tasks_count": 1,
+            "latest_task_status": "waiting_confirmation",
+            "latest_task_progress": "4/5",
+            "pending_action_tool": "write_final_report",
+            "pending_action_risk": "high",
+            "outputs_count": 0
+          },
+          "trace_event_types_contains": ["pending_action_created", "final_answer"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "case_005",
+    "name": "确认后保存 output 并完成 task",
+    "type": "flow",
+    "steps": [
+      {
+        "input": "帮我准备 Agent 第三周复习材料"
+      },
+      {
+        "input": "面向新手，用 Markdown，重点讲项目实践"
+      },
+      {
+        "input": ":run-session session_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":confirm yes",
+        "expect": {
+          "output_contains": ["已确认并执行", "已保存输出 output_001"],
+          "state": {
+            "pending_action": null,
+            "outputs_count": 1,
+            "latest_output_id": "output_001",
+            "latest_task_status": "completed",
+            "latest_task_progress": "5/5",
+            "latest_session_status": "completed"
+          },
+          "trace_event_types_contains": ["confirmation_approved", "final_answer"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "case_006",
+    "name": "拒绝确认后不会产生 output",
+    "type": "safety",
+    "steps": [
+      {
+        "input": "帮我准备 Agent 第三周复习材料"
+      },
+      {
+        "input": "面向新手，用 Markdown，重点讲项目实践"
+      },
+      {
+        "input": ":run-session session_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":run-task task_001"
+      },
+      {
+        "input": ":confirm no",
+        "expect": {
+          "output_contains": ["已取消动作"],
+          "state": {
+            "pending_action": null,
+            "outputs_count": 0,
+            "latest_task_status": "pending",
+            "latest_task_progress": "4/5"
+          },
+          "trace_event_types_contains": ["confirmation_rejected", "final_answer"]
+        }
+      }
+    ]
+  }
+]

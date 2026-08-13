@@ -40,6 +40,7 @@
 第 19 天：Agent 前端操作界面
 第 20 天：多轮工作流 Agent
 第 21 天：第三周综合项目：Agent 工作台
+第 22 天：Agent 测试体系
 ```
 
 前几天的基础模型可以总结为：
@@ -1750,6 +1751,100 @@ def handle_workbench_input(user_input, state):
 
 第 21 天完成第三周应用形态闭环。第 22 天可以进入第四周，开始学习 Agent 测试体系，让这个小型 Agent 应用不只是能跑，还能被稳定验证。
 
+## 第 22 天：Agent 测试体系
+
+### 主题
+
+从“Agent 能跑通一次”升级到“Agent 可以被稳定验证”，学习如何用测试检查输出、工具调用、状态变化、安全边界和 Trace。
+
+### 学习目标
+
+- 理解 Agent 测试不能只检查最终回答。
+- 区分 unit test、flow test、safety test 和 regression test。
+- 学会用 JSON 描述 Agent 测试用例。
+- 学会在每个测试前重置 state 和 trace，保证测试隔离。
+- 检查 session、task、pending_action、outputs 等关键状态。
+- 验证高风险动作必须等待用户确认，确认前不能产生副作用。
+- 输出清晰的 PASS / FAIL 测试报告。
+
+### 核心概念
+
+- Agent Test
+- Unit Test
+- Flow Test
+- Safety Test
+- Regression Test
+- Test Case
+- Assertion
+- Test Isolation
+- State Assertion
+- Trace Assertion
+
+### 核心流程
+
+```text
+读取测试用例
+-> 重置 workbench_state.json 和 agent_traces.jsonl
+-> 按步骤输入用户消息或命令
+-> 调用 Agent 工作台核心函数
+-> 获取 answer、state、trace
+-> 检查输出文本、状态字段、安全动作和最终结果
+-> 汇总 PASS / FAIL 报告
+```
+
+### 建议代码产出
+
+```text
+day22_agent_tests.py
+agent_test_cases.json
+```
+
+测试对象：
+
+```text
+day21_agent_workbench.py
+workbench_state.json
+agent_traces.jsonl
+```
+
+建议核心函数：
+
+```python
+def load_test_cases():
+    ...
+
+def reset_test_environment():
+    ...
+
+def run_test_case(test_case):
+    ...
+
+def run_step(step):
+    ...
+
+def assert_expectations(expect, answer, state, traces):
+    ...
+
+def assert_state_expectations(expected_state, state):
+    ...
+
+def assert_output_contains(expected_texts, answer):
+    ...
+
+def print_test_report(results):
+    ...
+```
+
+### 关键认知
+
+```text
+Agent 测试不是问“回答像不像”，而是验证“决策、工具、状态、安全和输出”是否符合预期。
+```
+
+### 明日衔接
+
+第 22 天让 Agent 工作台具备了回归测试基础。第 23 天可以继续学习配置与环境管理，让模型、路径、开关、密钥和运行参数不再散落在代码里。
+
 ## 课程质量要求
 
 为了让课程保持精品感和新手友好：
@@ -1785,8 +1880,10 @@ day18_agent_api_service.py
 day19_agent_frontend.html
 day20_workflow_agent.py
 day21_agent_workbench.py
+day22_agent_tests.py
 rag_index.json
 rag_eval_questions.json
+agent_test_cases.json
 multi_tool_memory.json
 agent_tasks.json
 workflow_sessions.json

@@ -41,6 +41,7 @@
 第 20 天：多轮工作流 Agent
 第 21 天：第三周综合项目：Agent 工作台
 第 22 天：Agent 测试体系
+第 23 天：配置与环境管理
 ```
 
 前几天的基础模型可以总结为：
@@ -1845,6 +1846,96 @@ Agent 测试不是问“回答像不像”，而是验证“决策、工具、�
 
 第 22 天让 Agent 工作台具备了回归测试基础。第 23 天可以继续学习配置与环境管理，让模型、路径、开关、密钥和运行参数不再散落在代码里。
 
+## 第 23 天：配置与环境管理
+
+### 主题
+
+从“配置散落在代码里”升级到“用配置文件和环境变量管理模型、路径、功能开关、安全策略和敏感信息”。
+
+### 学习目标
+
+- 理解代码逻辑、配置参数和环境变量的职责边界。
+- 学会把模型名、温度、路径、开关、最大步数和安全策略放入 agent_config.json。
+- 学会用 .env.example 描述必需环境变量，但不提交真实密钥。
+- 学会读取、校验和展示配置摘要。
+- 学会隐藏 OPENAI_API_KEY 等敏感信息。
+- 学会用配置控制 enable_trace、enable_write_tools、blocked_tools、max_steps_per_task 等行为。
+- 理解配置管理是测试、权限、部署、成本控制和最终项目的基础。
+
+### 核心概念
+
+- Config
+- Environment Variable
+- .env.example
+- Feature Flag
+- Runtime Limit
+- Secret Masking
+- Config Validation
+- Config Summary
+- Development / Test / Production
+- Configuration Boundary
+
+### 核心流程
+
+```text
+读取 agent_config.json
+-> 读取环境变量
+-> 校验配置字段和类型
+-> 隐藏敏感信息
+-> 输出配置摘要
+-> 根据配置控制 trace、写入工具、最大步骤数和禁用工具
+-> 配置错误时提前失败并给出明确提示
+```
+
+### 建议代码产出
+
+```text
+day23_configurable_agent.py
+agent_config.json
+.env.example
+```
+
+建议核心函数：
+
+```python
+def load_config():
+    ...
+
+def load_env():
+    ...
+
+def validate_config(config):
+    ...
+
+def get_config_summary(config, env):
+    ...
+
+def mask_secret(value):
+    ...
+
+def is_feature_enabled(config, feature_name):
+    ...
+
+def is_tool_allowed(config, tool_name):
+    ...
+
+def classify_tool_with_config(config, tool_name):
+    ...
+
+def enforce_runtime_limits(config, state):
+    ...
+```
+
+### 关键认知
+
+```text
+配置管理的目的，不是把常量换个地方写，而是把“不同环境会变化的东西”和“不能公开的东西”从核心逻辑里分离出来。
+```
+
+### 明日衔接
+
+第 23 天让 Agent 具备了配置化运行能力。第 24 天可以继续学习权限、鉴权与用户隔离，让不同用户、不同工具和不同风险动作拥有清晰的访问边界。
+
 ## 课程质量要求
 
 为了让课程保持精品感和新手友好：
@@ -1881,9 +1972,12 @@ day19_agent_frontend.html
 day20_workflow_agent.py
 day21_agent_workbench.py
 day22_agent_tests.py
+day23_configurable_agent.py
 rag_index.json
 rag_eval_questions.json
 agent_test_cases.json
+agent_config.json
+.env.example
 multi_tool_memory.json
 agent_tasks.json
 workflow_sessions.json

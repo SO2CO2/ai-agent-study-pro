@@ -1,0 +1,34 @@
+{
+  "environment": "development",
+  "model": {
+    "chat_model": "gpt-4.1-mini",
+    "embedding_model": "text-embedding-3-small",
+    "temperature": 0.2,
+    "max_output_tokens": 1200
+  },
+  "paths": {
+    "state_file": "workbench_state.json",
+    "trace_file": "agent_traces.jsonl",
+    "knowledge_base_dir": "knowledge_base",
+    "rag_index_file": "rag_index.json"
+  },
+  "features": {
+    "enable_trace": true,
+    "enable_human_confirmation": true,
+    "enable_rag": true,
+    "enable_memory": true,
+    "enable_write_tools": false
+  },
+  "safety": {
+    "blocked_tools": [
+      "run_shell_command"
+    ],
+    "high_risk_tools": [
+      "write_final_report",
+      "delete_memory"
+    ],
+    "max_goal_length": 500,
+    "max_steps_per_task": 10,
+    "require_confirmation_for_write": true
+  }
+}

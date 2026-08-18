@@ -42,6 +42,7 @@
 第 21 天：第三周综合项目：Agent 工作台
 第 22 天：Agent 测试体系
 第 23 天：配置与环境管理
+第 24 天：权限、鉴权与用户隔离
 ```
 
 前几天的基础模型可以总结为：
@@ -1936,6 +1937,102 @@ def enforce_runtime_limits(config, state):
 
 第 23 天让 Agent 具备了配置化运行能力。第 24 天可以继续学习权限、鉴权与用户隔离，让不同用户、不同工具和不同风险动作拥有清晰的访问边界。
 
+## 第 24 天：权限、鉴权与用户隔离
+
+### 主题
+
+从“单用户 Agent 工作台”升级到“知道当前用户是谁、能做什么、能访问哪些数据”的多用户安全边界。
+
+### 学习目标
+
+- 区分 Authentication、Authorization 和 Isolation。
+- 理解权限控制不是前端按钮控制，而是执行前的强制校验。
+- 设计 guest、student、admin 三种角色。
+- 使用 auth_policy.json 管理用户、角色和权限。
+- 让 sessions、tasks、pending_actions、outputs 带 owner_user_id。
+- 查询数据时只返回当前用户可见的数据。
+- 防止用户运行、确认或读取别人的任务和 pending action。
+- 理解权限策略应和配置管理、测试体系一起工作。
+
+### 核心概念
+
+- Authentication
+- Authorization
+- Isolation
+- User Identity
+- Role
+- RBAC
+- Permission
+- owner_user_id
+- Visible Scope
+- Permission Boundary
+
+### 核心流程
+
+```text
+用户登录
+-> 识别当前 user_id 和 role
+-> 读取 auth_policy.json
+-> 执行动作前检查 permission
+-> 创建数据时写入 owner_user_id
+-> 查询数据时按用户过滤
+-> 高风险 pending action 只能由 owner 或 admin 确认
+-> 管理命令只允许 admin 执行
+-> 全过程写入 Trace
+```
+
+### 建议代码产出
+
+```text
+day24_auth_agent.py
+auth_policy.json
+user_state.json
+```
+
+建议核心函数：
+
+```python
+def load_auth_policy():
+    ...
+
+def load_user_state():
+    ...
+
+def save_user_state(state):
+    ...
+
+def login(user_id, state, policy):
+    ...
+
+def current_user(state, policy):
+    ...
+
+def has_permission(user, permission, policy):
+    ...
+
+def require_permission(user, permission, policy):
+    ...
+
+def visible_to_user(item, user):
+    ...
+
+def filter_visible_items(items, user):
+    ...
+
+def confirm_user_action(action_id, user, state):
+    ...
+```
+
+### 关键认知
+
+```text
+Agent 的权限控制不是“按钮让不让点”，而是“每一次读、写、工具调用和确认动作，都必须在执行前知道用户是谁，并检查他是否有权这样做”。
+```
+
+### 明日衔接
+
+第 24 天让 Agent 具备了多用户安全边界。第 25 天可以继续学习部署与运行，让 Agent 能在可启动、可检查、可恢复的运行环境中工作。
+
 ## 课程质量要求
 
 为了让课程保持精品感和新手友好：
@@ -1973,15 +2070,18 @@ day20_workflow_agent.py
 day21_agent_workbench.py
 day22_agent_tests.py
 day23_configurable_agent.py
+day24_auth_agent.py
 rag_index.json
 rag_eval_questions.json
 agent_test_cases.json
 agent_config.json
+auth_policy.json
 .env.example
 multi_tool_memory.json
 agent_tasks.json
 workflow_sessions.json
 workbench_state.json
+user_state.json
 knowledge_base/
 unsafe_knowledge_base/
 reliable_knowledge_base/

@@ -1,0 +1,29 @@
+{
+  "default_role": "guest",
+  "users": {
+    "guest": "guest",
+    "alice": "student",
+    "bob": "student",
+    "admin": "admin"
+  },
+  "role_permissions": {
+    "guest": [
+      "whoami",
+      "read_help"
+    ],
+    "student": [
+      "whoami",
+      "read_help",
+      "create_session",
+      "read_own_sessions",
+      "read_own_tasks",
+      "run_own_task",
+      "confirm_own_action",
+      "read_own_outputs",
+      "clear_own_state"
+    ],
+    "admin": [
+      "*"
+    ]
+  }
+}
